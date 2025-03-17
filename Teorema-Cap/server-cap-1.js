@@ -67,12 +67,10 @@ app.listen(3000, () => {
 // *************** Escenario 1: Sin Partición (isPartitioned = false)
 // Comportamiento:
 //  1.Un cliente escribe en el Nodo 1: POST {"data": "A"} → Nodo1.
-
 //  2.Nodo1 replica el dato a Nodo2.
-
 //  3.Ambos nodos tienen ["A"].
 
-// CAP Cumplido:
+// CAP Cumplido:ss
 
 // Consistencia (C): Los datos son idénticos en ambos nodos.
 // Disponibilidad (A): Ambos nodos responden inmediatamente.
