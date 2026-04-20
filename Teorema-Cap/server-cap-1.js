@@ -20,26 +20,48 @@ const OTHER_NODE_URL = "http://localhost:3001"; // URL del otro nodo
 
 
 // Endpoint para agregar datos
+// app.post("/data", async (req, res) => {
+//   const newData = req.body.data;
+//   data.push(newData);
+  
+//     // Replica al otro nodo si no hay partición
+//     // Si isPartitioned = false, intenta replicar el dato al otro nodo.
+//     // Consistencia (C): En condiciones normales, ambos nodos se sincronizan para mantener los mismos datos.
+
+//     // Si isPartitioned = true, omite la replicación.
+//     // Tolerancia a Particiones (P): El sistema sigue funcionando incluso cuando los nodos no pueden comunicarse.
+//     // Sacrificio de Consistencia: Los datos divergen entre nodos durante la partición.
+
+//     if (!isPartitioned) {
+//         try {
+//         await axios.post(`${OTHER_NODE_URL}/data`, { data: newData });
+//         } catch (err) {
+//         console.log("[Node1] Error replicando datos:", err.message);
+//         }
+//     }
+//     res.json({ message: "Datos agregados en Node1", data: newData });
+// });
+
 app.post("/data", async (req, res) => {
   const newData = req.body.data;
+  const isReplicatedPacket = req.headers['x-is-replication'] === 'true';
+
   data.push(newData);
-  
-    // Replica al otro nodo si no hay partición
-    // Si isPartitioned = false, intenta replicar el dato al otro nodo.
-    // Consistencia (C): En condiciones normales, ambos nodos se sincronizan para mantener los mismos datos.
+  console.log(`[Node1] Guardado: ${newData} (Es réplica: ${isReplicatedPacket})`);
 
-    // Si isPartitioned = true, omite la replicación.
-    // Tolerancia a Particiones (P): El sistema sigue funcionando incluso cuando los nodos no pueden comunicarse.
-    // Sacrificio de Consistencia: Los datos divergen entre nodos durante la partición.
-
-    if (!isPartitioned) {
-        try {
-        await axios.post(`${OTHER_NODE_URL}/data`, { data: newData });
-        } catch (err) {
-        console.log("[Node1] Error replicando datos:", err.message);
-        }
+  // Lógica espejo: Solo replica si hay conexión y no es ya una réplica
+  if (!isPartitioned && !isReplicatedPacket) {
+    try {
+      await axios.post(`${OTHER_NODE_URL}/data`, 
+        { data: newData }, 
+        { headers: { 'x-is-replication': 'true' } } 
+      );
+    } catch (err) {
+      console.log("[Node1] Error al replicar:", err.message);
     }
-    res.json({ message: "Datos agregados en Node1", data: newData });
+  }
+
+  res.json({ message: "Procesado en Node1", data: newData });
 });
 
 // Endpoint para obtener datos
