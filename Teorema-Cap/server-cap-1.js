@@ -44,6 +44,7 @@ const OTHER_NODE_URL = "http://localhost:3001"; // URL del otro nodo
 
 app.post("/data", async (req, res) => {
   const newData = req.body.data;
+  // control del dato 
   const isReplicatedPacket = req.headers['x-is-replication'] === 'true';
 
   data.push(newData);
@@ -62,6 +63,7 @@ app.post("/data", async (req, res) => {
   }
 
   res.json({ message: "Procesado en Node1", data: newData });
+
 });
 
 // Endpoint para obtener datos

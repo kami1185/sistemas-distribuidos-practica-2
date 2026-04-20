@@ -44,6 +44,7 @@ app.post("/data", async (req, res) => {
   }
 
   res.json({ message: "Procesado en Node2", data: newData });
+  
 });
 
 app.get("/data", (req, res) => {
